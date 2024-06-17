@@ -22,8 +22,11 @@ Integrantes:
 Archivos:
 --------------
 - Análisis Exploratorio de los Datos (EDA): EDA_Steel_Industry_Energy_Consumption.ipynb
-- Desarrollo de Modelos trabajados: Modelos_Steel_Industry_Energy_Consumption.ipynb
-- Desarrollo de registro de pruebas de Modelos trabajados: MLflow_Steel_Industry_Energy_Consumption.ipynb
+- Desarrollo de Modelos trabajados con información de fecha: Modelos_01_Steel_Industry_Energy_Consumption.ipynb
+- Desarrollo de Modelos trabajados sin información de fecha: Modelos_02_Steel_Industry_Energy_Consumption.ipynb
+- Registro de pruebas de Modelos trabajados con información de fecha: MLflow_01_Steel_Industry_Energy_Consumption.ipynb
+- Registro de pruebas de Modelos trabajados sin información de fecha: MLflow_02_Steel_Industry_Energy_Consumption.ipynb
+
 
 
 Dataset: "Steel Industry Energy Consumption"
