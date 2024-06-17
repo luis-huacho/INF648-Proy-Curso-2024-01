@@ -13,15 +13,27 @@ Integrantes:
 20040848 	JAVIER JORGE ENRIQUE MOLINA VILLANUEVA
 20244806 	ASUNCIÓN LUIS HUACHO LAZO
 
+
 Archivos:
 --------------
 - Análisis Exploratorio de los Datos (EDA): EDA_Steel_Industry_Energy_Consumption.ipynb
 - Desarrollo de Modelos trabajados: Modelos_Steel_Industry_Energy_Consumption.ipynb
 - Desarrollo de registro de pruebas de Modelos trabajados: MLflow_Steel_Industry_Energy_Consumption.ipynb
 
+
 Dataset: "Steel Industry Energy Consumption"
 --------------
 https://archive.ics.uci.edu/dataset/851/steel+industry+energy+consumption
+
+
+Referencias de código y modelos
+--------------
+XGboost: https://www.kaggle.com/code/carlmcbrideellis/an-introduction-to-xgboost-regression/notebook
+Cubist: https://pypi.org/project/cubist/
+Optuna:
+- https://optuna.readthedocs.io/
+- https://www.youtube.com/watch?v=t-INgABWULw
+- https://www.kaggle.com/code/mustafagerme/optimization-of-random-forest-model-using-optuna
 
 
 Fuente Docker Compose:
