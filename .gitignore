@@ -2,3 +2,7 @@ db_data
 minio_data
 .idea
 mlruns
+.RData
+.Rhistory
+.Rproj.user
+.venv
