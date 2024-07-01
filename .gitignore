@@ -6,3 +6,15 @@ mlruns
 .Rhistory
 .Rproj.user
 .venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.rdb
+*.rds
+*.RData
+*.Rhistory
+*.Rproj.user
+*.Rproj
+*.Ruserdata
+*.Rpres
