@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steel Industry Data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .full-width {
+            width: 100vw;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        .selected {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body class="container-fluid full-width">
+    <h1 class="mt-4">Steel Industry Data</h1>
+    <table class="table table-bordered mt-4">
+        <thead class="thead-dark">
+            <tr>
+                {% for column in columns %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr data-index="{{ loop.index }}">
+                {% for column in columns %}
+                <td>{{ row[column] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Formulario</h2>
+    <form id="dataForm" class="mb-3">
+        <div class="form-row">
+            {% for column in columns %}
+            {% set safe_column = column.replace(' ', '_').replace('(', '').replace(')', '').replace('.', '_') %}
+            <div class="form-group col-md-6">
+                <label for="{{ safe_column }}">{{ column }}</label>
+                <input type="text" class="form-control" id="{{ safe_column }}" name="{{ column }}">
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="processBtn" class="btn btn-primary">Procesar</button>
+        <button type="button" id="clearBtn" class="btn btn-secondary">Limpiar</button>
+    </form>
+
+    <div id="modal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Processed Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <pre id="modalContent"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('tbody tr').on('click', function() {
+                $('tbody tr').removeClass('selected');
+                $(this).addClass('selected');
+                var index = $(this).data('index');
+                $.post('/get_row', {index: index-1}, function(data) {
+                    for (var key in data) {
+                        var safe_key = key.replace(' ', '_').replace('(', '').replace(')', '').replace('.', '_');
+                        $('#' + safe_key).val(data[key]);
+                    }
+                });
+            });
+
+            $('#processBtn').on('click', function() {
+                $.post('/process', $('#dataForm').serialize(), function(data) {
+                    $('#modalContent').text(JSON.stringify(data, null, 2));
+                    $('#modal').modal('show');
+                });
+            });
+
+            $('#clearBtn').on('click', function() {
+                $('#dataForm').trigger('reset');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,63 +1,77 @@
-import streamlit as st
-import pandas as pd
 import pickle
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+import joblib
+from flask import Flask, render_template, request, jsonify
+import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
+import os
 
-# Cargar el archivo CSV
-data = pd.read_csv('Steel_industry_data.csv')
+app = Flask(__name__)
 
-# Cargar el modelo preentrenado
-with open('model.pkl', 'rb') as model_file:
-    model = pickle.load(model_file)
+# Ruta del archivo CSV
+csv_file_path = 'Steel_industry_data.csv'
 
-
-# Función para predecir "usage_kwh"
-def predecir_usage_kwh(input_data):
-    prediction = model.predict([input_data])
-    return prediction[0]
+# Ruta del modelo
+model_path = './model.pkl'
 
 
-# Mostrar los datos en una grilla y permitir selección de filas
-gb = GridOptionsBuilder.from_dataframe(data)
-gb.configure_selection('single', use_checkbox=True)
-grid_options = gb.build()
+# Cargar el modelo
+def load_model():
+    model = joblib.load(model_path)
+    return model
 
-grid_response = AgGrid(
-    data,
-    gridOptions=grid_options,
-    update_mode=GridUpdateMode.SELECTION_CHANGED,
-    height=400,
-    allow_unsafe_jscode=True,
-    theme='streamlit'
-)
 
-selected_rows = grid_response['selected_rows']
+# Predicción
+def predict(model, data):
+    predictions = model.predict(data)
+    return predictions
 
-# Si se selecciona una fila, almacena los datos en el estado de la sesión
-if selected_rows and len(selected_rows) > 0:
-    selected_row_data = selected_rows[0]
-    for key in selected_row_data:
-        st.session_state[key] = selected_row_data[key]
 
-# Crear el formulario
-with st.form(key='data_form'):
-    fields = {}
-    for col in data.columns:
-        if col != 'usage_kwh':
-            if col in st.session_state:
-                fields[col] = st.text_input(col, value=st.session_state[col])
-            else:
-                fields[col] = st.text_input(col, value='')
+# Función para leer y procesar el CSV
+def load_and_process_data():
+    df = pd.read_csv(csv_file_path)
+    df.drop(columns=['date'], inplace=True)
+    encoder = OneHotEncoder(sparse_output=False)
+    encoded_columns = encoder.fit_transform(df[['WeekStatus', 'Day_of_week', 'Load_Type']])
+    encoded_df = pd.DataFrame(encoded_columns,
+                              columns=encoder.get_feature_names_out(['WeekStatus', 'Day_of_week', 'Load_Type']))
+    #df = df.join(encoded_df).drop(columns=['WeekStatus', 'Day_of_week', 'Load_Type'])
+    #df.reset_index(drop=True, inplace=True)  # Asegurarse de que el índice sea continuo y comenzar desde 0
+    return df, encoder
 
-    submit_button = st.form_submit_button(label='Procesar')
 
-# Funcionalidad del botón "Procesar"
-if submit_button:
-    input_data = [float(fields[col]) for col in fields]
-    predicted_usage_kwh = predecir_usage_kwh(input_data)
-    st.write(f'Predicción de usage_kwh: {predicted_usage_kwh}')
+data, encoder = load_and_process_data()
+df = data.drop(columns=['Usage_kWh'])  # Excluir la columna "Usage_kWh"
+model = load_model()  # Cargar el modelo
 
-# Funcionalidad del botón "Limpiar y reiniciar"
-if st.button(label='Limpiar y reiniciar'):
-    st.session_state.clear()
-    st.experimental_rerun()
+
+@app.route('/')
+def index():
+    random_rows = df.head(50).to_dict(orient='records')
+    return render_template('index.html', rows=random_rows, columns=df.columns)
+
+
+@app.route('/get_row', methods=['POST'])
+def get_row():
+    index = int(request.form['index'])
+    row = df.iloc[index].to_dict()
+    return jsonify(row)
+
+
+@app.route('/process', methods=['POST'])
+def process():
+    form_data = request.form.to_dict()
+    processed_df = pd.DataFrame([form_data])
+
+    try:
+        prediction = predict(model, processed_df)
+    except Exception as e:
+        prediction = [9999]
+
+    processed_df['Usage_kWh_Pred'] = prediction[0]
+    # processed_df['Usage_kWh_Real'] = data['Usage_kWh']
+
+    return jsonify(processed_df.to_dict(orient='records'))
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
