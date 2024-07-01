@@ -40,7 +40,8 @@ def load_and_process_data():
 
 
 data, encoder = load_and_process_data()
-df = data.drop(columns=['Usage_kWh'])  # Excluir la columna "Usage_kWh"
+#df = data.drop(columns=['Usage_kWh'])  # Excluir la columna "Usage_kWh"
+df = data
 model = load_model()  # Cargar el modelo
 
 
@@ -63,7 +64,7 @@ def process():
     processed_df = pd.DataFrame([form_data])
 
     try:
-        prediction = predict(model, processed_df)
+        prediction = predict(model, processed_df.drop(columns=['Usage_kWh']))
     except Exception as e:
         prediction = [9999]
 
