@@ -46,7 +46,7 @@ model = load_model()  # Cargar el modelo
 
 @app.route('/')
 def index():
-    random_rows = df.head(50).to_dict(orient='records')
+    random_rows = df.head(500).to_dict(orient='records')
     return render_template('index.html', rows=random_rows, columns=df.columns)
 
 

@@ -15,28 +15,42 @@
         .selected {
             background-color: #f2f2f2;
         }
+        .table-container {
+            max-height: 400px; /* Ajusta esta altura según sea necesario */
+            overflow-y: auto;
+            position: relative;
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #343a40; /* Mismo color que thead-dark */
+            color: white;
+            z-index: 2; /* Asegura que se superpone a las filas */
+        }
     </style>
 </head>
 <body class="container-fluid full-width">
     <h1 class="mt-4">Steel Industry Data</h1>
-    <table class="table table-bordered mt-4">
-        <thead class="thead-dark">
-            <tr>
-                {% for column in columns %}
-                <th>{{ column }}</th>
+    <div class="table-container">
+        <table class="table table-bordered mt-4">
+            <thead class="thead-dark">
+                <tr>
+                    {% for column in columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr data-index="{{ loop.index }}">
+                    {% for column in columns %}
+                    <td>{{ row[column] }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in rows %}
-            <tr data-index="{{ loop.index }}">
-                {% for column in columns %}
-                <td>{{ row[column] }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 
     <h2>Formulario</h2>
     <form id="dataForm" class="mb-3">
